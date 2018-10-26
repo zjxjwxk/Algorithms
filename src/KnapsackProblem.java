@@ -2,30 +2,36 @@ import java.util.Arrays;
 
 public class KnapsackProblem {
 
-    public static int[] tabuSearch(int[] value, int[] weight, int iteratorCount, int maxWeight) {
+    public static int[] tabuSearch(int[] value, int[] weight, int iteratorCount, int maxWeight, int[] initArr) {
         int len = value.length;
-        int[] currentList = new int[len];
+        int[] currentList = initArr;
         int[] tabuList = new int[len];
-        int maxValueSum = 0;
         for (int i = 0; i < iteratorCount; i++) {
+            int maxValueSum = 0;
+            int[] maxValueList = new int[len];
+
             for (int j = 0; j < len; j++) {
-                if (currentList[i] == 0) {
-                    currentList[i] = 1;
+                int[] tempList = currentList.clone();
+                if (tempList[j] == 0) {
+                    tempList[j] = 1;
                 } else {
-                    currentList[i] = 0;
+                    tempList[j] = 0;
                 }
-                int valueSum = valueSum(currentList, value);
-                int weightSum = weightSum(currentList, weight);
+                int valueSum = valueSum(tempList, value);
+                int weightSum = weightSum(tempList, weight);
                 if (weightSum < maxWeight) {
                     if (valueSum > maxValueSum) {
-                        if (Arrays.equals(currentList, tabuList)) {
+                        if (!Arrays.equals(tempList, tabuList)) {
                             maxValueSum = valueSum;
+                            maxValueList = tempList;
                         }
                     }
                 }
             }
+            tabuList = currentList;
+            currentList = maxValueList;
         }
-        return null;
+        return currentList;
     }
 
     public static int valueSum(int[] arr, int[] value) {
@@ -49,8 +55,14 @@ public class KnapsackProblem {
     }
 
     public static void main(String[] args) {
-        int[] a = {0, 1, 2};
-        int[] b = {0, 1, 2};
-        System.out.println(Arrays.equals(a, b));
+        int[] value = {4, 10, 5, 7, 4, 3};
+        int[] weight = {3, 9, 4, 6, 5, 2};
+        int iteratorCount = 5;
+        int maxWeight = 15;
+        int[] initArr = {0, 0, 0, 0, 0, 0};
+        int[] result = tabuSearch(value, weight, iteratorCount, maxWeight, initArr);
+        for (int i = 0; i < result.length; i++) {
+            System.out.print(result[i] + " ");
+        }
     }
 }
