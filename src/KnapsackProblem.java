@@ -19,7 +19,7 @@ public class KnapsackProblem {
                 }
                 int valueSum = valueSum(tempList, value);
                 int weightSum = weightSum(tempList, weight);
-                if (weightSum < maxWeight) {
+                if (weightSum <= maxWeight) {
                     if (valueSum > maxValueSum) {
                         if (!Arrays.equals(tempList, tabuList)) {
                             maxValueSum = valueSum;
@@ -30,6 +30,11 @@ public class KnapsackProblem {
             }
             tabuList = currentList;
             currentList = maxValueList;
+            for (int num :
+                    currentList) {
+                System.out.print(num + " ");
+            }
+            System.out.println();
         }
         return currentList;
     }
@@ -61,8 +66,5 @@ public class KnapsackProblem {
         int maxWeight = 15;
         int[] initArr = {0, 0, 0, 0, 0, 0};
         int[] result = tabuSearch(value, weight, iteratorCount, maxWeight, initArr);
-        for (int i = 0; i < result.length; i++) {
-            System.out.print(result[i] + " ");
-        }
     }
 }
