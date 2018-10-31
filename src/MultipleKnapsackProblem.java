@@ -1,22 +1,40 @@
 import java.util.*;
 
+/**
+ * @author zjxjwxk
+ */
 public class MultipleKnapsackProblem {
 
+    /**
+     * Greedy algorithm for MKP
+     * @param benefit the benefit of items
+     * @param weight the weight of items
+     * @param knapsackWeight the remaining weight of knapsacks
+     * @return the relation of items to knapsacks
+     */
     public static int[][] greedy(float[] benefit, float[] weight, int[] knapsackWeight) {
+        // number of items
         int itemLen = benefit.length;
+        // number of knapsacks
         int knapsackLen = knapsackWeight.length;
+        // key: index of item, value: benefit / weight of item
         Map<Integer, Float> benefitPerWeightToIndexMap = new TreeMap<>();
-
+        // if item i is included in knapsack j, result[i][j] = 1, otherwise result[i][j] = 0
         int[][] result = new int[itemLen][knapsackLen];
+        // initialize the map
         for (int i = 0; i < itemLen; i++) {
             benefitPerWeightToIndexMap.put(i, (benefit[i] / weight[i]));
         }
 
+        // the value comparator for sorting the entrySet in the map by value in descending order (using lambda)
         Comparator<Map.Entry<Integer, Float>> valueComparator = (o1, o2) -> o2.getValue().compareTo(o1.getValue());
+        // convert the map to list to sort it by value comparator
         List<Map.Entry<Integer, Float>> benefitPerWeightToIndexList = new ArrayList<>(benefitPerWeightToIndexMap.entrySet());
         benefitPerWeightToIndexList.sort(valueComparator);
 
+        // put items in list into knapsacks
         for (int j = 0; j < knapsackLen; j++) {
+            // the items have been put in and ready to be delete
             List<Map.Entry<Integer, Float>> deleteList = new ArrayList<>();
             for (Map.Entry<Integer, Float> entry:
                     benefitPerWeightToIndexList) {
@@ -27,21 +45,248 @@ public class MultipleKnapsackProblem {
                     knapsackWeight[j] -= weight[i];
                 }
             }
+            // delete the items have been put in
             benefitPerWeightToIndexList.removeAll(deleteList);
         }
         return result;
     }
 
-    public static void main(String[] args) {
-        float[] benefit = {3, 4, 2, 5, 6, 9, 1};
-        float[] weight = {4, 5, 3, 4, 7, 5, 2};
-        int[] knapsackWeight = {10, 10, 10};
-        int[][] result = greedy(benefit, weight, knapsackWeight);
+    /**
+     * Neighborhood Search for MKP
+     * @param benefit the benefit of items
+     * @param weight the weight of items
+     * @param knapsackWeight the remaining weight of knapsacks
+     * @return the relation of items to knapsacks
+     */
+    public static int[][] neighborhoodSearch(float[] benefit, float[] weight, int[] knapsackWeight){
+
+        /*
+        Using greedy algorithm to put items in knapsacks
+         */
+
+        // number of items
+        int itemLen = benefit.length;
+        // number of knapsacks
+        int knapsackLen = knapsackWeight.length;
+        // key: index of item, value: benefit / weight of item
+        Map<Integer, Float> benefitPerWeightToIndexMap = new TreeMap<>();
+        // if item i is included in knapsack j, result[i][j] = 1, otherwise result[i][j] = 0
+        int[][] result = new int[itemLen][knapsackLen];
+        // initialize the map
+        for (int i = 0; i < itemLen; i++) {
+            benefitPerWeightToIndexMap.put(i, (benefit[i] / weight[i]));
+        }
+
+        // the value comparator for sorting the entrySet in the map by value in descending order (using lambda)
+        Comparator<Map.Entry<Integer, Float>> valueComparator = (o1, o2) -> o2.getValue().compareTo(o1.getValue());
+        // convert the map to list to sort it by value comparator
+        List<Map.Entry<Integer, Float>> benefitPerWeightToIndexList = new ArrayList<>(benefitPerWeightToIndexMap.entrySet());
+        benefitPerWeightToIndexList.sort(valueComparator);
+
+        int greedyTotalBenefit = 0;
+
+        // put items in list into knapsacks
+        for (int j = 0; j < knapsackLen; j++) {
+            // the items have been put in and ready to be delete
+            List<Map.Entry<Integer, Float>> deleteList = new ArrayList<>();
+            for (Map.Entry<Integer, Float> entry:
+                    benefitPerWeightToIndexList) {
+                int i = entry.getKey();
+                if (weight[i] <= knapsackWeight[j]) {
+                    result[i][j] = 1;
+                    greedyTotalBenefit += benefit[i];
+                    deleteList.add(entry);
+                    knapsackWeight[j] -= weight[i];
+                }
+            }
+            // delete the items have been put in
+            benefitPerWeightToIndexList.removeAll(deleteList);
+        }
+        // After greedy algorithm
+        System.out.println("------After greedy algorithm------");
+        printKnapsackWeight(knapsackWeight);
+        printItemsNotIncluded(benefitPerWeightToIndexList);
+        System.out.println("Total benefit:" + greedyTotalBenefit);
+        printResult(result);
+
+        /*
+        Search neighborhood
+         */
+
+        int neighborTotalBenefit = greedyTotalBenefit;
+
+        for (int j1 = 0; j1 < knapsackLen - 1; j1++) {
+            for (int j2 = j1 + 1; j2 < knapsackLen; j2++) {
+                for (int i1 = 0; i1 < itemLen; i1++) {
+                    for (int i2 = 0; i2 < itemLen; i2++) {
+                        // check if item i1 and item i2 exists in knapsack j1 and j2 respectively
+                        if (result[i1][j1] == 1 && result[i2][j2] == 1) {
+                            // tempList for update benefitPerWeightToIndexList in iteration
+                            List<Map.Entry<Integer, Float>> tempList = new ArrayList<>(benefitPerWeightToIndexList);
+                            // traversing items that have not been included
+                            for (Map.Entry<Integer, Float> entry:
+                                 benefitPerWeightToIndexList) {
+
+                                int i3 = entry.getKey();
+                                // check if the neighborhood solution is feasible
+                                if (knapsackWeight[j2] + weight[i2] - weight[i1] >= 0
+                                        && knapsackWeight[j1] + weight[i1] - weight[i3] >= 0) {
+                                    // check if the neighborhood solution is better
+                                    if (neighborTotalBenefit - benefit[i2] + benefit[i3] > neighborTotalBenefit) {
+                                        // change to the better solution
+                                        result[i1][j1] = 0;
+                                        result[i1][j2] = 1;
+
+                                        result[i2][j2] = 0;
+
+                                        result[i3][j1] = 1;
+
+                                        tempList.remove(entry);
+                                        int finalI2 = i2;
+                                        tempList.add(new Map.Entry<Integer, Float>() {
+                                            @Override
+                                            public Integer getKey() {
+                                                return finalI2;
+                                            }
+
+                                            @Override
+                                            public Float getValue() {
+                                                return benefit[finalI2] / weight[finalI2];
+                                            }
+
+                                            @Override
+                                            public Float setValue(Float value) {
+                                                return null;
+                                            }
+                                        });
+
+                                        knapsackWeight[j1] += weight[i1] - weight[i3];
+                                        knapsackWeight[j2] += weight[i2] - weight[i1];
+
+                                        neighborTotalBenefit = (int) (neighborTotalBenefit - benefit[i2] + benefit[i3]);
+
+                                        System.out.println("------Find a better solution------");
+                                        System.out.println("Remove item" + i2 + " in " + "knapsack" + j2 + ", move item" + i1 + " from knapsack" + j1 + " to " + "knapsack" + j2 + " and put item" + i3 + " in knapsack" + j1);
+                                        printKnapsackWeight(knapsackWeight);
+                                        printItemsNotIncluded(tempList);
+                                        System.out.println("Total benefit:" + neighborTotalBenefit);
+                                        printResult(result);
+                                    }
+                                }
+                            }
+                            benefitPerWeightToIndexList = tempList;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static void printResult(int[][] result) {
         for (int i = 0; i < result.length; i++) {
             for (int j = 0; j < result[0].length; j++) {
                 System.out.print(result[i][j] + " ");
             }
             System.out.println();
         }
+    }
+
+    public static void printKnapsackWeight(int[] knapsackWeight) {
+        System.out.print("knapsackWeight: ");
+        for (int i = 0; i < knapsackWeight.length; i++) {
+            System.out.print("Knapsack" + i + ": " + knapsackWeight[i] + "  ");
+        }
+        System.out.println();
+    }
+
+    public static void printItemsNotIncluded(List<Map.Entry<Integer, Float>> list) {
+        System.out.print("Items not included: ");
+        for (Map.Entry<Integer, Float> entry :
+                list) {
+            System.out.print("Item" + entry.getKey() + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+
+        /*
+        Greedy algorithm test
+         */
+//        float[] benefit = {3, 4, 2, 5, 6, 9, 1, 7, 8, 10, 12, 4, 8, 9, 3, 2, 8, 14};
+//        float[] weight = {4, 5, 3, 4, 7, 5, 2, 10, 6, 8, 14, 3, 6, 7, 2, 1, 5, 9};
+//        int[] knapsackWeight = {20, 20, 20};
+
+//        int[][] result = greedy(benefit, weight, knapsackWeight);
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result[0].length; j++) {
+//                System.out.print(result[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
+//        int benefitSum = 0;
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result[0].length; j++) {
+//                if (result[i][j] == 1) {
+//                    benefitSum += benefit[i];
+//                }
+//            }
+//        }
+//        System.out.println("Benefit Sum:" + benefitSum);
+
+        /*
+        Neighborhood search test
+         */
+
+        /*
+        Random items and knapsacks
+         */
+        int itemLen = 10;
+        int knapsackLen = 4;
+//        int knapsackLen = 5;
+//        float[] benefit = {38, 50, 18, 22, 8, 14, 12, 22, 47, 25};
+//        float[] weight = {6, 5, 9, 1, 5, 4, 5, 10, 8, 7};
+//        int[] knapsackWeight = {16, 17, 19, 17, 17};
+        float[] benefit = new float[itemLen];
+        float[] weight = new float[itemLen];
+        int[] knapsackWeight = new int[knapsackLen];
+
+        Random random = new Random();
+        for (int i = 0; i < itemLen; i++) {
+            // random benefit: 1 ~ 10
+            benefit[i] = random.nextInt(9) + 1;
+            // random weight: 1 ~ 10
+            weight[i] = random.nextInt(9) + 1;
+        }
+        for (int i = 0; i < knapsackLen; i++) {
+            // random knapsack weight: 5 ~ 15
+            knapsackWeight[i] = random.nextInt(10) + 5;
+        }
+
+        /*
+        Print items and knapsacks
+         */
+        System.out.println("Items benefit:");
+        for (int i = 0; i < itemLen; i++) {
+            System.out.print(benefit[i] + " ");
+        }
+        System.out.println();
+
+        System.out.println("Items weight:");
+        for (int i = 0; i < itemLen; i++) {
+            System.out.print(weight[i] + " ");
+        }
+        System.out.println();
+
+        System.out.println("Knapsacks weight:");
+        for (int i = 0; i < knapsackLen; i++) {
+            System.out.print(knapsackWeight[i] + " ");
+        }
+        System.out.println();
+
+        // neighborhood search
+        int[][] result = neighborhoodSearch(benefit, weight, knapsackWeight);
     }
 }
