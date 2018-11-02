@@ -18,26 +18,26 @@ public class MultipleKnapsackProblem {
         // number of knapsacks
         int knapsackLen = knapsackWeight.length;
         // key: index of item, value: benefit / weight of item
-        Map<Integer, Float> benefitPerWeightToIndexMap = new TreeMap<>();
+        Map<Integer, Float> benefitPerWeightMap = new TreeMap<>();
         // if item i is included in knapsack j, result[i][j] = 1, otherwise result[i][j] = 0
         int[][] result = new int[itemLen][knapsackLen];
         // initialize the map
         for (int i = 0; i < itemLen; i++) {
-            benefitPerWeightToIndexMap.put(i, (benefit[i] / weight[i]));
+            benefitPerWeightMap.put(i, (benefit[i] / weight[i]));
         }
 
         // the value comparator for sorting the entrySet in the map by value in descending order (using lambda)
         Comparator<Map.Entry<Integer, Float>> valueComparator = (o1, o2) -> o2.getValue().compareTo(o1.getValue());
         // convert the map to list to sort it by value comparator
-        List<Map.Entry<Integer, Float>> benefitPerWeightToIndexList = new ArrayList<>(benefitPerWeightToIndexMap.entrySet());
-        benefitPerWeightToIndexList.sort(valueComparator);
+        List<Map.Entry<Integer, Float>> benefitPerWeightList = new ArrayList<>(benefitPerWeightMap.entrySet());
+        benefitPerWeightList.sort(valueComparator);
 
         // put items in list into knapsacks
         for (int j = 0; j < knapsackLen; j++) {
             // the items have been put in and ready to be delete
             List<Map.Entry<Integer, Float>> deleteList = new ArrayList<>();
             for (Map.Entry<Integer, Float> entry:
-                    benefitPerWeightToIndexList) {
+                    benefitPerWeightList) {
                 int i = entry.getKey();
                 if (weight[i] <= knapsackWeight[j]) {
                     result[i][j] = 1;
@@ -46,7 +46,7 @@ public class MultipleKnapsackProblem {
                 }
             }
             // delete the items have been put in
-            benefitPerWeightToIndexList.removeAll(deleteList);
+            benefitPerWeightList.removeAll(deleteList);
         }
         return result;
     }
@@ -115,25 +115,26 @@ public class MultipleKnapsackProblem {
 
         int neighborTotalBenefit = greedyTotalBenefit;
 
+        // traversing knapsacks
         for (int j1 = 0; j1 < knapsackLen - 1; j1++) {
             for (int j2 = j1 + 1; j2 < knapsackLen; j2++) {
+                // traversing items in the two knapsacks
                 for (int i1 = 0; i1 < itemLen; i1++) {
                     for (int i2 = 0; i2 < itemLen; i2++) {
-                        // check if item i1 and item i2 exists in knapsack j1 and j2 respectively
+                        // judge if item i1 and item i2 exists in knapsack j1 and j2 respectively
                         if (result[i1][j1] == 1 && result[i2][j2] == 1) {
                             // tempList for update benefitPerWeightToIndexList in iteration
                             List<Map.Entry<Integer, Float>> tempList = new ArrayList<>(benefitPerWeightToIndexList);
                             // traversing items that have not been included
                             for (Map.Entry<Integer, Float> entry:
                                  benefitPerWeightToIndexList) {
-
                                 int i3 = entry.getKey();
-                                // check if the neighborhood solution is feasible
+                                // judge if the neighborhood solution is feasible
                                 if (knapsackWeight[j2] + weight[i2] - weight[i1] >= 0
                                         && knapsackWeight[j1] + weight[i1] - weight[i3] >= 0) {
-                                    // check if the neighborhood solution is better
+                                    // judge if the neighborhood solution is better
                                     if (neighborTotalBenefit - benefit[i2] + benefit[i3] > neighborTotalBenefit) {
-                                        // change to the better solution
+                                        // change the current solution to the neighborhood solution
                                         result[i1][j1] = 0;
                                         result[i1][j2] = 1;
 
@@ -174,6 +175,7 @@ public class MultipleKnapsackProblem {
                                     }
                                 }
                             }
+                            // update the list after traversing the list
                             benefitPerWeightToIndexList = tempList;
                         }
                     }
