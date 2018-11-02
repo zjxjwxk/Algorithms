@@ -83,6 +83,8 @@ public class MultipleKnapsackProblem {
         List<Map.Entry<Integer, Float>> benefitPerWeightToIndexList = new ArrayList<>(benefitPerWeightToIndexMap.entrySet());
         benefitPerWeightToIndexList.sort(valueComparator);
 
+        printBenefitPerWeightList(benefitPerWeightToIndexList);
+
         int greedyTotalBenefit = 0;
 
         // put items in list into knapsacks
@@ -187,12 +189,14 @@ public class MultipleKnapsackProblem {
     }
 
     public static void printResult(int[][] result) {
+        System.out.println("Result:");
         for (int i = 0; i < result.length; i++) {
             for (int j = 0; j < result[0].length; j++) {
                 System.out.print(result[i][j] + " ");
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     public static void printKnapsackWeight(int[] knapsackWeight) {
@@ -212,45 +216,23 @@ public class MultipleKnapsackProblem {
         System.out.println();
     }
 
+    public static void printBenefitPerWeightList(List<Map.Entry<Integer, Float>> list) {
+        System.out.println("Sorted Benefit/Weight List: ");
+        for (Map.Entry<Integer, Float> entry :
+                list) {
+            System.out.println("Item" + entry.getKey() + " (index: " + entry.getKey() + ", benefit/weight: " + entry.getValue() + ")");
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args) {
-
-        /*
-        Greedy algorithm test
-         */
-//        float[] benefit = {3, 4, 2, 5, 6, 9, 1, 7, 8, 10, 12, 4, 8, 9, 3, 2, 8, 14};
-//        float[] weight = {4, 5, 3, 4, 7, 5, 2, 10, 6, 8, 14, 3, 6, 7, 2, 1, 5, 9};
-//        int[] knapsackWeight = {20, 20, 20};
-
-//        int[][] result = greedy(benefit, weight, knapsackWeight);
-//        for (int i = 0; i < result.length; i++) {
-//            for (int j = 0; j < result[0].length; j++) {
-//                System.out.print(result[i][j] + " ");
-//            }
-//            System.out.println();
-//        }
-//        int benefitSum = 0;
-//        for (int i = 0; i < result.length; i++) {
-//            for (int j = 0; j < result[0].length; j++) {
-//                if (result[i][j] == 1) {
-//                    benefitSum += benefit[i];
-//                }
-//            }
-//        }
-//        System.out.println("Benefit Sum:" + benefitSum);
-
-        /*
-        Neighborhood search test
-         */
 
         /*
         Random items and knapsacks
          */
+        System.out.println("------Random items and knapsacks------");
         int itemLen = 10;
         int knapsackLen = 4;
-//        int knapsackLen = 5;
-//        float[] benefit = {38, 50, 18, 22, 8, 14, 12, 22, 47, 25};
-//        float[] weight = {6, 5, 9, 1, 5, 4, 5, 10, 8, 7};
-//        int[] knapsackWeight = {16, 17, 19, 17, 17};
         float[] benefit = new float[itemLen];
         float[] weight = new float[itemLen];
         int[] knapsackWeight = new int[knapsackLen];
@@ -270,25 +252,26 @@ public class MultipleKnapsackProblem {
         /*
         Print items and knapsacks
          */
-        System.out.println("Items benefit:");
+        System.out.print("Items benefit:");
         for (int i = 0; i < itemLen; i++) {
             System.out.print(benefit[i] + " ");
         }
         System.out.println();
 
-        System.out.println("Items weight:");
+        System.out.print("Items weight:");
         for (int i = 0; i < itemLen; i++) {
             System.out.print(weight[i] + " ");
         }
         System.out.println();
 
-        System.out.println("Knapsacks weight:");
+        System.out.print("Knapsacks weight:");
         for (int i = 0; i < knapsackLen; i++) {
             System.out.print(knapsackWeight[i] + " ");
         }
         System.out.println();
 
         // neighborhood search
-        int[][] result = neighborhoodSearch(benefit, weight, knapsackWeight);
+        neighborhoodSearch(benefit, weight, knapsackWeight);
+
     }
 }
