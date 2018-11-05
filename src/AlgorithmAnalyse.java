@@ -1,11 +1,11 @@
-import java.util.Random;
+import java.io.File;
 
 /**
  * @author zjxjwxk
  */
-public class AlgorithmTest {
+public class AlgorithmAnalyse {
 
-    private static int mergeSortRecursive(int[] arr, int[] result, int start, int end, int operationsCount) {
+    private static double mergeSortRecursive(int[] arr, int[] result, int start, int end, double operationsCount) {
         if (start >= end) {
             return 0;
         }
@@ -16,8 +16,8 @@ public class AlgorithmTest {
         int end1 = mid;
         int start2 = mid + 1;
         int end2 = end;
-        mergeSortRecursive(arr, result, start1, end1, operationsCount);
-        mergeSortRecursive(arr, result, start2, end2, operationsCount);
+        operationsCount += mergeSortRecursive(arr, result, start1, end1, operationsCount);
+        operationsCount += mergeSortRecursive(arr, result, start2, end2, operationsCount);
         // conquer
         int k = start;
         while (start1 <= end1 && start2 <= end2) {
@@ -25,6 +25,7 @@ public class AlgorithmTest {
                 operationsCount++;
                 result[k++] = arr[start1++];
             } else {
+                operationsCount++;
                 result[k++] = arr[start2++];
             }
         }
@@ -47,7 +48,7 @@ public class AlgorithmTest {
         int[] result = new int[len];
         int count = 0;
         long startTime = System.nanoTime();
-        int operationsCount = mergeSortRecursive(arr, result, 0, len - 1, count);
+        double operationsCount = mergeSortRecursive(arr, result, 0, len - 1, count);
         long entTime = System.nanoTime();
         double time = (entTime - startTime) / 1000000000.0;
         double[] ret = new double[2];
@@ -81,21 +82,26 @@ public class AlgorithmTest {
 
         System.out.println("Merge Sort: ");
         System.out.println("Time: " + result[0] + "s");
-        System.out.println("Operation times: " + result[1] + "times");
+        System.out.println("Operation times: " + result[1] + " times");
     }
 
-    public static int[] generateArray(int num) {
-        int[] arr = new int[num];
-        Random random = new Random();
-        for (int i = 0; i < num; i++) {
-            arr[i] = random.nextInt(10);
-        }
+    public static int[] readFile(String pathname) {
+        File file = new File(pathname);
+        ReadFile readFile = new ReadFile(file);
+        int[] arr = readFile.readAllInts();
         return arr;
     }
 
     public static void main(String[] args) {
 
-        int[] arr = generateArray(10000);
+        String numbers1 = "Numbers1.txt";
+        String numbers2 = "Numbers2.txt";
+        String numbers3 = "Numbers3.txt";
+        String numbers4 = "Numbers4.txt";
+        String numbers5 = "Numbers5.txt";
+        int[] arr = readFile(numbers5);
+//        printArray(arr);
         printMergeSortResult(arr);
+//        printArray(arr);
     }
 }
