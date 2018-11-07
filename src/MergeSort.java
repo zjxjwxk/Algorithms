@@ -1,8 +1,16 @@
 /**
+ * Merge sort
  * @author zjxjwxk
  */
 public class MergeSort {
 
+    /**
+     * recursive method for merge sort
+     * @param arr array to sort
+     * @param result sorted array
+     * @param start start index
+     * @param end end index
+     */
     private static void mergeSortRecursive(int[] arr, int[] result, int start, int end) {
         if (start >= end) {
             return;
@@ -19,11 +27,7 @@ public class MergeSort {
         // conquer
         int k = start;
         while (start1 <= end1 && start2 <= end2) {
-            if (arr[start1] <= arr[start2]) {
-                result[k++] = arr[start1++];
-            } else {
-                result[k++] = arr[start2++];
-            }
+            result[k++] = arr[start1] < arr[start2] ? arr[start1++] : arr[start2++];
         }
         while (start1 <= end1) {
             result[k++] = arr[start1++];
@@ -36,6 +40,10 @@ public class MergeSort {
         }
     }
 
+    /**
+     * merge sort
+     * @param arr array to sort
+     */
     public static void mergeSort(int[] arr) {
         int len = arr.length;
         int[] result = new int[len];
