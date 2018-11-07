@@ -1,8 +1,13 @@
 /**
+ * Bubble sort
  * @author zjxjwxk
  */
 public class BubbleSort {
 
+    /**
+     * bubble sort
+     * @param arr array to sort
+     */
     public static void bubbleSort(int[] arr) {
         for(int i = 0; i < arr.length-1; i++) {
             for(int j = 0; j < arr.length - i - 1; j++) {
