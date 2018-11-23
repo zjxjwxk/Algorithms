@@ -1,5 +1,7 @@
+package bth004.lesson;
+
 /**
- * Fibonacci
+ * Fibonacci数列
  * @author zjxjwxk
  */
 public class Fibonacci {
