@@ -1,3 +1,5 @@
+package bth004.assignment2;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;

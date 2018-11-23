@@ -1,3 +1,5 @@
+package bth004.assignment2;
+
 import java.io.*;
 import java.util.Locale;
 import java.util.Random;
