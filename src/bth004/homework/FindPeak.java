@@ -1,4 +1,9 @@
-public class FindPeaks {
+package bth004.homework;
+
+/**
+ * @author zjxjwxk
+ */
+public class FindPeak {
 
     public static int findPeak(int[] nums) {
 
