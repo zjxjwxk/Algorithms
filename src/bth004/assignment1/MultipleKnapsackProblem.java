@@ -1,3 +1,5 @@
+package bth004.assignment1;
+
 import java.util.*;
 
 /**
