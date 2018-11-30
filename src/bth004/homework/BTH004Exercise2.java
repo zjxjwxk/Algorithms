@@ -1,3 +1,8 @@
+package bth004.homework;
+
+/**
+ * @author zjxjwxk
+ */
 public class BTH004Exercise2 {
 
     public static int[] findMaxAndMin(int[] a) {
