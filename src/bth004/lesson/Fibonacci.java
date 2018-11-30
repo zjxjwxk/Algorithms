@@ -22,7 +22,7 @@ public class Fibonacci {
     }
 
     public static void main(String[] args) {
-        int num = 3;
+        int num = 20;
         System.out.println(fibRecursive(num));
     }
 }
